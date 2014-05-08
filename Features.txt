@@ -1,0 +1,32 @@
+Features:
+	Player List
+		Once you open up a server log, LFA searches through the entire log and tries to find every player it can.
+		It puts every player into a dictionary with these values:
+			Their In-game names
+			Their IPs
+			Their Computer ID
+			Their BYOND CKey
+		By double clicking a name in the Player List, you open up the player viewer.
+		You are also able to search for ips, in-game names, ckeys, and computer ids in a small search bar below the player list.
+	Player Viewer
+		The player viewer is a small window that contains the following information about the selected player
+			BYOND CKey
+			Computer ID
+			In-game names
+			IPs
+			Players with the same Computer ID
+			Players with the same IP
+		The player viewer also has a small area with the same functionality as the regular log searcher.
+			However, when searching with this searcher, the only results that will be shown are results which contain a reference to the player's Ckey.
+	Log Searcher
+		The log searcher is a small module that has a few features to help with searching through a log.
+		First of all are Search Terms. The log searcher will search through each line in the log and compare the list of Positive Search Terms to the line.
+		With positive search terms, you can prepend a "+" to declare it as a AND term. Otherwise, it will be considered an OR term.
+			With AND terms, ALL of the terms must be in the line in order for it to be included
+			With OR terms, at least one of the terms must be in the line in order for it to be included
+		If the line contains ANY of the negative search terms, then the program will NOT include the line in the search results.
+		After a search is completed, a new window will pop up.
+	Log Search Result Viewer
+		Exactly what it sounds like. It displays the results of your search.
+		It has a panel with the same functionality as the standard log searcher, except this one will only search the results it has displayed.
+		The viewer also has an export function for saving the results displayed.
