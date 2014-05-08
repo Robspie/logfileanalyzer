@@ -1,19 +1,37 @@
 ﻿Imports System.IO
 Public Class lfaMain
     Public playerDict As New Dictionary(Of String, playerInfo)
+
+    'These three variables are for indicating the status of the server/attack log files.
+    'The top menuitem, OpenLogFile, will be the following colours:
+    '   Green if both logs are loaded
+    '   Red if neither logs are loaded
+    '   Yellow if only one but not the other is loaded
+    'Each menuitem for the logs will have the following colours:
+    '   Green if it's loaded
+    '   Red if it is not loaded
     Dim logLoadedColor As Color = Color.LightGreen
     Dim logNotLoadedColor As Color = Color.LightCoral
     Dim logsHalfLoadedColor As Color = Color.FromArgb(255, 255, 128)
 
+    'Self Explanatory
     Public serverLogPath As String = ""
     Public attackLogPath As String = ""
     Public mergedLogPath As String = ""
 
     Private Sub lfaMain_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+        'Basic initialization.
+        'It sets the form title to Log File Analyzer + the version
+        'Then, it sets all of the log menu items to red, or not loaded
+        'Afterwords, it checks if its temp directory, ./logFileAnalyzer/Month-Day/, exists. If not, it makes it.
+
         Me.Text = "Log File Analyzer " & Application.ProductVersion
+
         OpenLogFileToolStripMenuItem.BackColor = logNotLoadedColor
         ServerToolStripMenuItem.BackColor = logNotLoadedColor
         AttackToolStripMenuItem.BackColor = logNotLoadedColor
+
         Try
             If Directory.Exists("logFileAnalyzer") = False Then
                 Directory.CreateDirectory("logFileAnalyzer")
@@ -29,6 +47,11 @@ Public Class lfaMain
     End Sub
 
     Private Sub ServerToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ServerToolStripMenuItem.Click
+        'This prompts the user to load a server log.
+        'Then, if the log is an existing file, it'll set the server log menu item to green, or loaded & allow users to search server log files.
+        'Then, if the attack log is loaded & existing, it'll set the "Open Log File" menu item to green & combine the attack log/server log into one file in the temporary directory
+        '   If not, it'll set the menu item to yellow.
+        'Afterwords, it'll call getPlayers() to get a list of players from the log file(Misc.vb)
         Dim serverLogOFD As New OpenFileDialog
         serverLogOFD.Filter = "log|*.txt;*.log"
         serverLogOFD.Title = "Open Server Log"
@@ -59,6 +82,7 @@ Public Class lfaMain
                 newItem.Tag = KVP.Key
                 playerListView.Items.Add(newItem)
             Next
+            'comment penis
         Else
             If serverLogOFD.FileName.Length > 0 Then
                 MsgBox("The file you selected doesn't exist!" & vbNewLine &
@@ -83,6 +107,7 @@ Public Class lfaMain
 
     Private Sub AttackToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles AttackToolStripMenuItem.Click
         'Fuck yeah copy/paste
+        'Basically the same as the Server menu item. It just doesn't enumerate players.
         Dim serverLogOFD As New OpenFileDialog
         serverLogOFD.Filter = "log|*.txt;*.log"
         serverLogOFD.Title = "Open Attack Log"

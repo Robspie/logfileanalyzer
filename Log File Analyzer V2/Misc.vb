@@ -1,13 +1,15 @@
 ﻿Imports System.IO
 Module Misc
     Public Sub err(ByVal ex As Exception)
+        'This is my error reporter thing.
+        'Displays an error and then prompts the user. If the user says yes, the exception will be saved to their clipboard.
         Try
             Dim res As MsgBoxResult = MsgBox("There was an error!" & vbNewLine &
                    "Error Text:" & vbNewLine &
                    "------------------------------" & vbNewLine & vbNewLine &
                     ex.ToString & vbNewLine & vbNewLine &
                     "-----------------------------" & vbNewLine &
-                    "Please report this error to Materaspieaux." & vbNewLine &
+                    "Please report this error to the github project, https://github.com/Robspie/logfileanalyzer/issues" & vbNewLine &
                     "Would you like to save the error to your clipboard?",
                     MsgBoxStyle.YesNo,
                     "Whoops.")
@@ -26,16 +28,17 @@ Module Misc
     End Sub
 
     Public Sub getPlayers(ByVal logPath As String, ByRef playerDict As Dictionary(Of String, playerInfo))
+        'This sub looks through the server log file and searches for a line that looks something like this:
+        '[18:33:29]ACCESS: Login: Materaspieaux/(Jebus) from 127.0.0.1-3899995441 || BYOND v504
+        'It then runs it through getCkeyAndName() and getIpandCID() to get the Ckey/Name & IP/ComputerID
         Try
-
-
             Dim line As String = ""
             Dim tempCkey As String = ""
             Dim tempIgn As String = ""
             Dim tempIP As String = ""
             Dim tempCID As String = ""
             Using reader As New StreamReader(logPath)
-                '[18:33:29]ACCESS: Login: Materaspieaux/(Jebus) from 127.0.0.1-3899995441 || BYOND v504
+
                 While reader.EndOfStream = False
                     line = reader.ReadLine()
                     If line.Contains("ACCESS: Login:") Then
@@ -62,6 +65,9 @@ Module Misc
         End Try
     End Sub
     Public Sub getCkeyAndName(ByVal line As String, ByRef ck As String, ByRef ign As String)
+        'This basically takes the input from line, and tries to pick out the following:
+        '(Materaspieaux/Jebus)
+        'Where the first term is the Ckey, and the second term is the ingame name.
         Dim firstParse As String = line.Substring(25)
         Dim secondParse As String = firstParse.Replace(firstParse.Substring(firstParse.IndexOf(" from ")), "")
         Dim thirdParse As String = secondParse.Replace("(", "").Replace(")", "")
@@ -70,15 +76,17 @@ Module Misc
         If fourthParse.Length = 2 Then
             ck = fourthParse(0)
             ign = fourthParse(1)
-            
+
         End If
 
 
     End Sub
     Public Sub getIpandCID(ByVal line As String, ByRef IP As String, ByRef CID As String)
+        'Basically does the same as getCkeyAndName, but gets the IP and ComputerID.
+
         Dim firstParse As String = line.Substring(line.IndexOf(" from ") + 6)
         Dim secondParse As String = firstParse.Replace(firstParse.Substring(firstParse.IndexOf(" || ")), "")
-        Dim splitToeNail() As String = secondParse.Split("-")
+        Dim splitToeNail() As String = secondParse.Split("-") 'It came from kicking a wall with a toothpick inbetween your toe and toenail.
         If splitToeNail.Length = 2 Then
             IP = splitToeNail(0)
             CID = splitToeNail(1)
@@ -91,6 +99,8 @@ Module Misc
     End Sub
 
     Public Function makeFileNameSafe(ByVal s As String) As String
+        'This makes an input string, s, safe for use in a filename.
+
         Dim ret As String = s
         ret = ret.Replace(":", "_")
         ret = ret.Replace("<", "_")
@@ -117,45 +127,65 @@ Module Misc
         Return found
     End Function
 
-    'This function will return a:
-    '   1:  timestamp1 is later than timestamp2
-    '   2:  timestamp2 is later than timestamp1
-    '   3:  timestamps are equal
-    '   -1: timestamp1 is wrongly formatted
-    '   -2: timestamp2 is wrongly formatted
-    '   -3: both are wrong. why.
+
     Public Function compareTimeStamps(ByVal timestamp1 As String, ByVal timestamp2 As String) As Integer
+        'This function will return a:
+        '   1:  timestamp1 is later than timestamp2
+        '   2:  timestamp2 is later than timestamp1
+        '   3:  timestamps are equal
+        '   -1: timestamp1 is wrongly formatted
+        '   -2: timestamp2 is wrongly formatted
+        '   -3: both are wrong. why.
+        '   -4: there was an issue parsing the timestamp. Whoops.
         '[xx:xx:xx]
         '0123456789
         Dim retNum As Integer = -1
         If (timestamp1.Length = 10) And (timestamp2.Length = 10) Then
+
             Dim hour1 As String = timestamp1.Substring(1, 2)
             Dim minute1 As String = timestamp1.Substring(4, 2)
             Dim second1 As String = timestamp1.Substring(7, 2)
+
 
             Dim hour2 As String = timestamp2.Substring(1, 2)
             Dim minute2 As String = timestamp2.Substring(4, 2)
             Dim second2 As String = timestamp2.Substring(7, 2)
 
-            Dim pHour1 As Integer = Integer.Parse(hour1)
-            Dim pMinute1 As String = Integer.Parse(minute1)
-            Dim pSecond1 As String = Integer.Parse(second1)
+            Dim pHour1 As Integer = 0
+            Dim pMinute1 As Integer = 0
+            Dim pSecond1 As Integer = 0
 
-            Dim pHour2 As Integer = Integer.Parse(hour2)
-            Dim pMinute2 As String = Integer.Parse(minute2)
-            Dim pSecond2 As String = Integer.Parse(second2)
+            Dim pHour2 As Integer = 0
+            Dim pMinute2 As Integer = 0
+            Dim pSecond2 As Integer = 0
 
-            Dim tot1 As Integer = 0
-            Dim tot2 As Integer = 0
+            'heh.
+            Dim successfullyParsed As Boolean = True
 
-            tot1 += pHour1 * 3600 + pMinute1 * 60 + pSecond1
-            tot2 += pHour2 * 3600 + pMinute2 * 60 + pSecond2
-            If tot1 > tot2 Then
-                retNum = 1
-            ElseIf tot2 > tot1 Then
-                retNum = 2
+            successfullyParsed = successfullyParsed And Integer.TryParse(hour1, pHour1)
+            successfullyParsed = successfullyParsed And Integer.TryParse(minute1, pMinute1)
+            successfullyParsed = successfullyParsed And Integer.TryParse(second1, pSecond1)
+
+            successfullyParsed = successfullyParsed And Integer.TryParse(hour2, pHour2)
+            successfullyParsed = successfullyParsed And Integer.TryParse(minute2, pMinute2)
+            successfullyParsed = successfullyParsed And Integer.TryParse(second2, pSecond2)
+            'heh heh.
+
+            If successfullyParsed Then
+                Dim tot1 As Integer = 0
+                Dim tot2 As Integer = 0
+
+                tot1 += pHour1 * 3600 + pMinute1 * 60 + pSecond1
+                tot2 += pHour2 * 3600 + pMinute2 * 60 + pSecond2
+                If tot1 > tot2 Then
+                    retNum = 1
+                ElseIf tot2 > tot1 Then
+                    retNum = 2
+                Else
+                    retNum = 3
+                End If
             Else
-                retNum = 3
+                retNum = -4
             End If
 
         ElseIf timestamp1.Length <> 10 And timestamp2.Length = 10 Then
@@ -181,6 +211,7 @@ Module Misc
                     Dim serverLineHasTimeStamp As Boolean = False
                     Dim attackLineHasTimeStamp As Boolean = False
 
+                    'These two are so that it'll read lines until it hits a point with a real timestamp on the line.
                     While (getTimeStamp(serverLine, serverLineTimeStamp) = False) And serverReader.EndOfStream = False
                         combinedWriter.WriteLine(serverLine)
                         serverLine = serverReader.ReadLine
@@ -189,6 +220,7 @@ Module Misc
                         combinedWriter.WriteLine(attackLine)
                         attackLine = attackReader.ReadLine
                     End While
+
 
                     While (serverReader.EndOfStream = False) And (attackReader.EndOfStream = False)
                         If compareTimeStamps(serverLineTimeStamp, attackLineTimeStamp) = 1 Then
@@ -224,7 +256,7 @@ Module Misc
                         ElseIf compareTimeStamps(serverLineTimeStamp, attackLineTimeStamp) = -2 Then
                             combinedWriter.WriteLine(attackLine)
                             attackLine = attackReader.ReadLine
-                        ElseIf compareTimeStamps(serverLineTimeStamp, attackLineTimeStamp) = -3 Then
+                        ElseIf compareTimeStamps(serverLineTimeStamp, attackLineTimeStamp) <= -3 Then 'Basically catches if they both were formatted incorrectly/there was an issue parsing
                             combinedWriter.WriteLine(serverLine)
                             combinedWriter.WriteLine(attackLine)
                             serverLine = serverReader.ReadLine
@@ -232,6 +264,8 @@ Module Misc
                         End If
 
                     End While
+
+                    'These two are to write out the rest of the attack log and server log.
                     While attackReader.EndOfStream = False
                         combinedWriter.WriteLine(attackLine)
                         attackLine = attackReader.ReadLine

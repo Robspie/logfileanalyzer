@@ -2,9 +2,18 @@
 	* Decided to start keeping a changelog
 	* Minor bug fix
 		It will now properly enumerate a list of users with the same ips/ComputerIDs when you view a player's info.
+		
 2.0.0.4(May 7th, 2014)
 	* Added a search bar for the player list
 		The search bar can search for ips, ingame names, ckeys, and computer ids.
 	* Once you load both an attack and a server log, it will sort all of the data from both in chronological order according to timestamps.
 		You will then be able to search both logs at the same time, and it'll show results in the proper order.
 		This will allow you to see someone being toolboxed and screaming about it in the same search.
+
+2.0.0.5(May 7, 2014)
+	* Fixed the "Search Both" button in the player viewer.
+	
+2.0.0.6(May 8th, 2014)
+	* Made code a bit more readable/added comments and shit
+	* Fixed a block of code with the timestamps. It was assigning an integer to a string, which technically works but is probably bad form.
+	
