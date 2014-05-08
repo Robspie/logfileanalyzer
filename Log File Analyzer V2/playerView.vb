@@ -112,4 +112,15 @@
             pview.Show()
         End If
     End Sub
+
+    Private Sub searchBothButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles searchBothButton.Click
+        Dim SRF As New searchResultForm
+        SRF.filePath = LFA.mergedLogPath
+        SRF.upPosTerms = "+" & PINFO.CKey & "/" & posTerms.Text
+        SRF.upNegTerms = negTerms.Text
+        SRF.posCaseSensitive = posCaseSensitive.Checked
+        SRF.negCaseSensitive = negCaseSensitive.Checked
+
+        SRF.Show()
+    End Sub
 End Class
